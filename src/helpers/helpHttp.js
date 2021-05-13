@@ -1,5 +1,5 @@
 export const helpHttp = () => {
-  const customFetch = (endpoint, options) => {
+  const customFetch = async (endpoint, options) => {
     const defaultHeader = {
       accept: "application/json",
     };
@@ -13,24 +13,23 @@ export const helpHttp = () => {
       : defaultHeader;
 
     options.body = JSON.stringify(options.body) || false;
-    if (!options.body) {
-      delete options.body;
+    if (!options.body) delete options.body;
 
-      console.log(options);
+    //console.log(options);
+    setTimeout(() => controller.abort(), 3000);
 
-      setTimeout(() => controller.abort(), 3000);
-
-      return fetch(endpoint, options)
-        .then((res) =>
-          res.ok
-            ? res.json()
-            : Promise.reject({
-                err: true,
-                status: res.status || "00",
-                statusText: res.statusText || "Ocurrio un error",
-            })
-        )
-        .catch((err) => err);
+    try {
+      const res = await fetch(endpoint, options);
+      return await (
+        res.ok
+          ? res.json()
+          : Promise.reject({
+            err: true,
+            status: res.status || "00",
+            statusText: res.statusText || "Ocurrió un error",
+          }));
+    } catch (err) {
+      return err;
     }
   };
 
@@ -51,5 +50,10 @@ export const helpHttp = () => {
     return customFetch(url, options);
   };
 
-  return {get, post, put, del};
+  return {
+    get,
+    post,
+    put,
+    del,
+  };
 };
